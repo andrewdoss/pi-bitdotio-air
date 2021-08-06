@@ -1,4 +1,4 @@
-pyserial
+bitdotio[psycopg2-binary]
 pyaml
 python-dotenv
-bitdotio[psycopg2-binary]
+pyserial
