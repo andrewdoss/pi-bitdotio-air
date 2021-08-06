@@ -72,17 +72,21 @@ def main():
     b = bitdotio.bitdotio(BITDOTIO_API_KEY)
     
     while True:
-        sample = [ser.read(10) for i in range(CONFIG['period'])]
+        try:
+            sample = [ser.read(10) for i in range(CONFIG['period'])]
 
-        record = {'location': CONFIG['location']}
+            record = {'location': CONFIG['location']}
 
-        record['sensor_id'] = parse_value(sample[0], *CONFIG['sensor_id'])
-        for measurement, parse_args in CONFIG['measurements'].items():
-            meas_sum = sum([parse_measurement(x, *parse_args) for x in sample])
-            record[measurement] = meas_sum / CONFIG['period']
+            record['sensor_id'] = parse_value(sample[0], *CONFIG['sensor_id'])
+            for measurement, parse_args in CONFIG['measurements'].items():
+                meas_sum = sum([parse_measurement(x, *parse_args) for x in sample])
+                record[measurement] = meas_sum / CONFIG['period']
 
-        insert_record(b, [record[col] for col in CONFIG['columns']], CONFIG)
-        logger.info(f'RECORD UPLOADED: {record}')
+            insert_record(b, [record[col] for col in CONFIG['columns']], CONFIG)
+            logger.info(f'RECORD UPLOADED: {record}')
+        except Exception as e:
+            logger.exception('An error occurred')
+            raise e
 
 
 if __name__ == '__main__':
