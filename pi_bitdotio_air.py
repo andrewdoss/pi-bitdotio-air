@@ -1,36 +1,44 @@
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import serial
-import sys
-import time
 
 import bitdotio
 from dotenv import load_dotenv
 import yaml
 
+
+# Load environment variables
 load_dotenv()
 BITDOTIO_API_KEY = os.getenv('BITDOTIO_API_KEY')
 
 
-logging.basicConfig(
-    filename='log.out',
-    filemode='a',
-    format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
+# Logging setup
+log_file = 'log.out'
+log_formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
+handler = RotatingFileHandler('log2.out', mode='a', maxBytes=20*1024**2, 
+                                 backupCount=1, encoding=None, delay=0)
+handler.setFormatter(log_formatter)
+handler.setLevel(logging.INFO)
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 
 def parse_value(data, start_byte, num_bytes):
+    '''Returns a value from a sequence of bytes'''
     value = data[start_byte: start_byte + num_bytes]
     return int.from_bytes(value, byteorder='little')
 
 
 def parse_measurement(data, start_byte, num_bytes, denom):
+    '''Returns a scaled measurement from a sequence of bytes'''
     return parse_value(data, start_byte, num_bytes) / denom
 
 
 def execute_sql(bitdotio, sql, params=None):
-    '''Run arbitrary SQL statements on bitdotio'''
+    '''Runs arbitrary SQL statements on bitdotio'''
     try:
         conn = bitdotio.get_connection()
         cur = conn.cursor()
@@ -45,6 +53,7 @@ def execute_sql(bitdotio, sql, params=None):
 
 
 def insert_record(bitdotio, record, CONFIG):
+    '''Inserts a record into bit.io'''
     repo_owner = CONFIG['repo_owner']
     repo_name = CONFIG['repo_name']
     table_name = CONFIG['table_name']
@@ -73,7 +82,7 @@ def main():
             record[measurement] = meas_sum / CONFIG['period']
 
         insert_record(b, [record[col] for col in CONFIG['columns']], CONFIG)
-        logging.info(f'RECORD UPLOADED: {record}')
+        logger.info(f'RECORD UPLOADED: {record}')
 
 
 if __name__ == '__main__':

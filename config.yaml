@@ -1,3 +1,4 @@
+# Configures sensor logging, must align with schema.sql on columns
 columns:
   - location
   - sensor_id
