@@ -16,7 +16,7 @@ BITDOTIO_API_KEY = os.getenv('BITDOTIO_API_KEY')
 # Logging setup
 log_file = 'log.out'
 log_formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
-handler = RotatingFileHandler('log2.out', mode='a', maxBytes=20*1024**2, 
+handler = RotatingFileHandler(log_file, mode='a', maxBytes=20*1024**2, 
                                  backupCount=1, encoding=None, delay=0)
 handler.setFormatter(log_formatter)
 handler.setLevel(logging.INFO)
