@@ -13,4 +13,4 @@ A minimal air quality data logger using Python and bit.io.
 
 
 ## Run
-`python pi_bitdotio.py`
+`python pi_bitdotio_air.py`
