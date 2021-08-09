@@ -46,7 +46,8 @@ def execute_sql(bitdotio, sql, params=None):
         cur.close()
         conn.commit()
     except Exception as e:
-        print(e)
+        logger.exception('An error occurred')
+        raise e
     finally:
         if conn is not None:
             conn.close()
@@ -68,11 +69,11 @@ def main():
         CONFIG = yaml.safe_load(f)
 
     ser = serial.Serial('/dev/ttyUSB0')
-
-    b = bitdotio.bitdotio(BITDOTIO_API_KEY)
     
     while True:
         try:
+            b = bitdotio.bitdotio(BITDOTIO_API_KEY)
+
             sample = [ser.read(10) for i in range(CONFIG['period'])]
 
             record = {'location': CONFIG['location']}
